@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="多AI協作的圖書館管理系統，支持圖書管理、借閱追蹤和自動報告生成">
+    <meta name="keywords" content="圖書館管理,書籍管理,借閱系統,AI,自動報告">
+    <meta property="og:title" content="圖書管理系統 - Library Management System">
+    <meta property="og:description" content="智能圖書館管理平台">
+    <title>📚 圖書管理系統 - Library Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e68900;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-weight: bold;
+            color: #333;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .report-content {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 圖書管理系統</h1>
+            <p>Library Management System - Multi-AI Powered</p>
+        </header>
+
+        <div class="content">
+            <!-- 統計信息 -->
+            <div class="stats" id="statistics">
+                <div class="stat-card">
+                    <h3>📖 總圖書數</h3>
+                    <div class="value" id="total-books">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>✅ 可借圖書</h3>
+                    <div class="value" id="available-books">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📤 已借出</h3>
+                    <div class="value" id="borrowed-books">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>⏰ 逾期未還</h3>
+                    <div class="value" id="overdue-books">0</div>
+                </div>
+            </div>
+
+            <!-- 消息顯示 -->
+            <div id="message" class="message"></div>
+
+            <!-- 標籤頁 -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('books')">📕 圖書管理</button>
+                <button class="tab-btn" onclick="switchTab('loans')">📤 借閱管理</button>
+                <button class="tab-btn" onclick="switchTab('reports')">📊 每日報告</button>
+            </div>
+
+            <!-- 圖書管理標籤 -->
+            <div id="books" class="tab-content active">
+                <h2>📕 圖書管理</h2>
+                
+                <div class="form-group">
+                    <h3>➕ 添加新圖書</h3>
+                    <div class="form-row">
+                        <input type="text" id="bookTitle" placeholder="書名" required>
+                        <input type="text" id="bookAuthor" placeholder="作者" required>
+                        <input type="text" id="bookISBN" placeholder="ISBN" required>
+                        <input type="text" id="bookCategory" placeholder="分類" required>
+                        <input type="number" id="bookQuantity" placeholder="數量" value="1" min="1">
+                    </div>
+                    <button class="btn-primary" onclick="addBook()">✅ 添加圖書</button>
+                </div>
+
+                <h3>📚 圖書列表</h3>
+                <table id="books-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>書名</th>
+                            <th>作者</th>
+                            <th>ISBN</th>
+                            <th>分類</th>
+                            <th>總數</th>
+                            <th>可借</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- 借閱管理標籤 -->
+            <div id="loans" class="tab-content">
+                <h2>📤 借閱管理</h2>
+                
+                <div class="form-group">
+                    <h3>➕ 新增借閱</h3>
+                    <div class="form-row">
+                        <select id="loanBookId" required>
+                            <option value="">選擇圖書...</option>
+                        </select>
+                        <input type="text" id="loanUserName" placeholder="借閱者名字" required>
+                        <input type="date" id="loanDueDate" required>
+                    </div>
+                    <button class="btn-primary" onclick="createLoan()">✅ 確認借閱</button>
+                </div>
+
+                <h3>📋 借閱記錄</h3>
+                <table id="loans-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>書名</th>
+                            <th>借閱者</th>
+                            <th>借閱日期</th>
+                            <th>截止日期</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- 每日報告標籤 -->
+            <div id="reports" class="tab-content">
+                <h2>📊 每日報告</h2>
+                
+                <button class="btn-success" onclick="generateReport()">🔄 生成今日報告</button>
+                
+                <h3>📑 報告歷史</h3>
+                <table id="reports-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>總圖書</th>
+                            <th>可借</th>
+                            <th>已借出</th>
+                            <th>逾期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <!-- 報告詳情模態框 -->
+                <div id="reportModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeReportModal()">&times;</span>
+                        <h3>📋 報告詳情</h3>
+                        <div id="reportDetails" class="report-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // 切換標籤頁
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'loans') loadLoans();
+            if (tabName === 'reports') loadReports();
+        }
+
+        // 顯示消息
+        function showMessage(text, type = 'success') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            setTimeout(() => msg.className = 'message', 3000);
+        }
+
+        // ===== 圖書管理 =====
+        
+        // 加載圖書列表
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API_URL}/books`);
+                const books = await response.json();
+                const tbody = document.querySelector('#books-table tbody');
+                tbody.innerHTML = '';
+                
+                books.forEach(book => {
+                    const row = `
+                        <tr>
+                            <td>${book.id}</td>
+                            <td>${book.title}</td>
+                            <td>${book.author}</td>
+                            <td>${book.isbn}</td>
+                            <td>${book.category}</td>
+                            <td>${book.quantity}</td>
+                            <td>${book.available}</td>
+                            <td>
+                                <button class="btn-warning" onclick="editBook(${book.id})">✏️ 編輯</button>
+                                <button class="btn-danger" onclick="deleteBook(${book.id})">🗑️ 刪除</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                // 更新借閱下拉選單
+                const select = document.getElementById('loanBookId');
+                select.innerHTML = '<option value="">選擇圖書...</option>';
+                books.filter(b => b.available > 0).forEach(book => {
+                    select.innerHTML += `<option value="${book.id}">${book.title} (${book.author})</option>`;
+                });
+            } catch (error) {
+                console.error('加載圖書失敗:', error);
+                showMessage('加載圖書失敗', 'error');
+            }
+        }
+
+        // 添加圖書
+        async function addBook() {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const isbn = document.getElementById('bookISBN').value;
+            const category = document.getElementById('bookCategory').value;
+            const quantity = document.getElementById('bookQuantity').value;
+
+            if (!title || !author || !isbn || !category) {
+                showMessage('請填寫所有必填字段', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/books`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, author, isbn, category, quantity: parseInt(quantity) })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✓ 圖書添加成功', 'success');
+                    document.getElementById('bookTitle').value = '';
+                    document.getElementById('bookAuthor').value = '';
+                    document.getElementById('bookISBN').value = '';
+                    document.getElementById('bookCategory').value = '';
+                    document.getElementById('bookQuantity').value = '1';
+                    loadBooks();
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('添加圖書失敗:', error);
+                showMessage('添加圖書失敗', 'error');
+            }
+        }
+
+        // 刪除圖書
+        async function deleteBook(id) {
+            if (!confirm('確定要刪除該圖書嗎？')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/books/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✓ 圖書刪除成功', 'success');
+                    loadBooks();
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('刪除圖書失敗:', error);
+                showMessage('刪除圖書失敗', 'error');
+            }
+        }
+
+        // ===== 借閱管理 =====
+
+        // 加載借閱記錄
+        async function loadLoans() {
+            try {
+                const response = await fetch(`${API_URL}/loans`);
+                const loans = await response.json();
+                const tbody = document.querySelector('#loans-table tbody');
+                tbody.innerHTML = '';
+                
+                loans.forEach(loan => {
+                    const row = `
+                        <tr>
+                            <td>${loan.id}</td>
+                            <td>${loan.title}</td>
+                            <td>${loan.user_name}</td>
+                            <td>${new Date(loan.loan_date).toLocaleDateString('zh-TW')}</td>
+                            <td>${new Date(loan.due_date).toLocaleDateString('zh-TW')}</td>
+                            <td>${loan.status === 'borrowed' ? '🔴 借出中' : '✅ 已還'}</td>
+                            <td>
+                                ${loan.status === 'borrowed' ? `<button class="btn-success" onclick="returnLoan(${loan.id})">✅ 歸還</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('加載借閱記錄失敗:', error);
+                showMessage('加載借閱記錄失敗', 'error');
+            }
+        }
+
+        // 創建借閱
+        async function createLoan() {
+            const book_id = document.getElementById('loanBookId').value;
+            const user_name = document.getElementById('loanUserName').value;
+            const due_date = document.getElementById('loanDueDate').value;
+
+            if (!book_id || !user_name || !due_date) {
+                showMessage('請填寫所有必填字段', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/loans`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ book_id: parseInt(book_id), user_name, due_date })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✓ 借閱成功', 'success');
+                    document.getElementById('loanBookId').value = '';
+                    document.getElementById('loanUserName').value = '';
+                    document.getElementById('loanDueDate').value = '';
+                    loadLoans();
+                    loadBooks();
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('創建借閱失敗:', error);
+                showMessage('創建借閱失敗', 'error');
+            }
+        }
+
+        // 歸還圖書
+        async function returnLoan(id) {
+            try {
+                const response = await fetch(`${API_URL}/loans/${id}/return`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✓ 歸還成功', 'success');
+                    loadLoans();
+                    loadBooks();
+                    loadStatistics();
+                }
+            } catch (error) {
+                console.error('歸還失敗:', error);
+                showMessage('歸還失敗', 'error');
+            }
+        }
+
+        // ===== 統計和報告 =====
+
+        // 加載統計信息
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/statistics`);
+                const stats = await response.json();
+                
+                document.getElementById('total-books').textContent = stats.total_books || 0;
+                document.getElementById('available-books').textContent = stats.available_books || 0;
+                document.getElementById('borrowed-books').textContent = stats.borrowed_books || 0;
+                document.getElementById('overdue-books').textContent = stats.overdue_books || 0;
+            } catch (error) {
+                console.error('加載統計失敗:', error);
+            }
+        }
+
+        // 生成報告
+        async function generateReport() {
+            try {
+                const response = await fetch(`${API_URL}/reports/generate`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('✓ 報告生成成功', 'success');
+                    loadReports();
+                }
+            } catch (error) {
+                console.error('生成報告失敗:', error);
+                showMessage('生成報告失敗', 'error');
+            }
+        }
+
+        // 加載報告
+        async function loadReports() {
+            try {
+                const response = await fetch(`${API_URL}/reports`);
+                const reports = await response.json();
+                const tbody = document.querySelector('#reports-table tbody');
+                tbody.innerHTML = '';
+                
+                reports.forEach(report => {
+                    const row = `
+                        <tr>
+                            <td>${new Date(report.report_date).toLocaleDateString('zh-TW')}</td>
+                            <td>${report.total_books}</td>
+                            <td>${report.available_books}</td>
+                            <td>${report.borrowed_books}</td>
+                            <td>${report.overdue_books}</td>
+                            <td>
+                                <button class="btn-primary" onclick="viewReport('${report.report_content.replace(/'/g, "\\'")}')">👁️ 查看</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('加載報告失敗:', error);
+                showMessage('加載報告失敗', 'error');
+            }
+        }
+
+        // 查看報告詳情
+        function viewReport(content) {
+            document.getElementById('reportDetails').textContent = content;
+            document.getElementById('reportModal').style.display = 'block';
+        }
+
+        // 關閉報告模態框
+        function closeReportModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+
+        // 頁面加載時初始化
+        window.addEventListener('load', () => {
+            loadBooks();
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>
